@@ -8,7 +8,7 @@
   # that need to fetch remote sources will fail
   nix.useSandbox = false;
 
-  # add the dev user and group for Vagrant to be able to mount the shared folders
+  # Vagrant needs to mount the shared folders with the dev group
   users.groups.dev = {
     gid = 2001;
   };
@@ -16,7 +16,6 @@
     uid = 2001;
     group = "dev";
     isNormalUser = true;
-    extraGroups = [ "keys" "users" ];
   };
 
 }
