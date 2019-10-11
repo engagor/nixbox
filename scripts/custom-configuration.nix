@@ -96,7 +96,6 @@
     memcached
     nasm
     nodejs
-    optipng
     pkgconfig
     python
     redis
