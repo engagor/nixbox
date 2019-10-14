@@ -98,7 +98,7 @@
     nodejs
     pkgconfig
     python
-    redis
+    rabbitmq-server
     redis
     rssh
     ruby
