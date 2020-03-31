@@ -1,9 +1,10 @@
 #!/bin/sh
 
 # Make sure we are totally up to date
-nix-channel --add https://nixos.org/channels/nixos-19.03-small nixos
-nix-channel --update
-nixos-rebuild switch --upgrade
+# nix-channel --add https://nixos.org/channels/nixos-19.09-small nixos
+# nix-channel --update
+# nixos-rebuild switch --upgrade
+echo "Start postinstall ..."
 
 # Cleanup any previous generations and delete old packages that can be
 # pruned.
@@ -13,10 +14,15 @@ for x in $(seq 0 2) ; do
   nix-collect-garbage -d
 done
 
-
 # Remove install ssh key
 rm -rf /root/.ssh /root/.packer_http
 
-# Zero out the disk (for better compression)
-dd if=/dev/zero of=/EMPTY bs=1M
-rm -rf /EMPTY
+if [[ "${PACKER_BUILDER_TYPE}" == "qemu" ]] ; then
+  echo "skipping disk zero out!"
+else
+  echo "zeroing out the disk..."
+
+  # Zero out the disk (for better compression)
+  dd if=/dev/zero of=/EMPTY bs=1M
+  rm -rf /EMPTY
+fi

@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env nix-shell
+#!nix-shell -i ruby
 #
 # Packer supports user variables but they are a bit awkward to use. It's
 # easier to build the config programatically.
@@ -20,14 +21,15 @@ def builder(**opts)
       'echo http://{{ .HTTPIP }}:{{ .HTTPPort}} > .packer_http<enter>',
       'mkdir -m 0700 .ssh<enter>',
       'curl $(cat .packer_http)/install_rsa.pub > .ssh/authorized_keys<enter>',
-      'systemctl start sshd<enter>',
+      'sudo systemctl start sshd<enter>',
     ],
     http_directory: 'scripts',
     iso_checksum_type: 'sha256',
-    shutdown_command: 'shutdown -h now',
+    shutdown_command: 'sudo shutdown -h now',
     ssh_private_key_file: './scripts/install_rsa',
     ssh_port: 22,
-    ssh_username: 'root',
+    ssh_username: 'nixos',
+    headless: true
   }.merge(opts)
 end
 
@@ -52,16 +54,21 @@ def gen_template(
     end
 
   puts JSON.pretty_generate(
+    variables: {
+      disk_size: '10240',
+      memory: '1024',
+    },
     builders: [
       builder(
         type: 'virtualbox-iso',
         iso_url: iso_url,
         iso_checksum: iso_sha256,
         guest_additions_mode: 'disable',
+        format: 'ova',
         guest_os_type: guest_os_type,
-        disk_size: 52000,
+        disk_size: '{{ user `disk_size` }}',
         vboxmanage: [
-          ['modifyvm', '{{.Name}}', '--memory', '1024'],
+          ['modifyvm', '{{.Name}}', '--memory', '{{ user `memory` }}', '--vram', '128', '--clipboard', 'bidirectional'],
         ],
       ),
       builder(
@@ -69,27 +76,34 @@ def gen_template(
         iso_url: iso_url,
         iso_checksum: iso_sha256,
         disk_interface: 'virtio-scsi',
+        disk_size: '{{ user `disk_size` }}',
+        format: 'qcow2',
         qemuargs: [
-          ['-m', '1024'],
+          ['-m', '{{ user `memory` }}'],
         ],
       ),
       builder(
         type: 'vmware-iso',
         iso_url: iso_url,
         iso_checksum: iso_sha256,
-        memory: 1024,
-        disk_size: 62000,
+        memory: '{{ user `memory` }}',
+        disk_size: '{{ user `disk_size` }}',
         guest_os_type: "Linux"
       ),
     ],
     provisioners: [
-      { type: 'shell', script: './scripts/install.sh' }
+      {
+        execute_command: "sudo su -c '{{ .Vars }} {{.Path}}'",
+        type: 'shell',
+        script: './scripts/install.sh'
+      }
     ],
     'post-processors': [[
       {
         type: 'vagrant',
         keep_input_artifact: false,
-        only: [ 'virtualbox-iso', 'qemu']
+        only: [ 'virtualbox-iso', 'qemu'],
+        output: "nixos-#{ver}-{{.Provider}}-#{arch}.box"
       }
     ]],
   )
