@@ -15,6 +15,10 @@
   # allow packages with unfree licenses
   nixpkgs.config.allowUnfree = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "rssh-2.3.4"
+  ];
+
   # Vagrant needs to mount the shared folders with the dev group
   users.groups.dev = {
     gid = 2001;
