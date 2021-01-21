@@ -13,15 +13,14 @@
         "sudo systemctl start sshd<enter>"
       ],
       "http_directory": "scripts",
-      "iso_checksum_type": "sha256",
       "shutdown_command": "sudo shutdown -h now",
       "ssh_private_key_file": "./scripts/install_rsa",
       "ssh_port": 22,
       "ssh_username": "nixos",
       "headless": true,
       "type": "virtualbox-iso",
-      "iso_url": "https://releases.nixos.org/nixos/19.09/nixos-19.09.741.dbad7c7d59f/nixos-minimal-19.09.2345.6d445f8398d-x86_64-linux.iso",
-      "iso_checksum": "315180e2244bde2435f84755a1e72811000fa23792d4fa3a15a697376f6f16bd",
+      "iso_url": "https://channels.nixos.org/nixos-20.03/latest-nixos-minimal-x86_64-linux.iso",
+      "iso_checksum": "sha256:fee337ed6dafa8ee09dd80c7f7e52153f2afb45bf568363e42dbfb45dcbea071",
       "guest_additions_mode": "disable",
       "format": "ova",
       "guest_os_type": "Linux_64",
@@ -55,8 +54,8 @@
       "ssh_username": "nixos",
       "headless": true,
       "type": "qemu",
-      "iso_url": "https://releases.nixos.org/nixos/19.09/nixos-19.09.741.dbad7c7d59f/nixos-minimal-19.09.2345.6d445f8398d-x86_64-linux.iso",
-      "iso_checksum": "315180e2244bde2435f84755a1e72811000fa23792d4fa3a15a697376f6f16bd",
+      "iso_url": "https://channels.nixos.org/nixos-20.03/latest-nixos-minimal-x86_64-linux.iso",
+      "iso_checksum": "a3e9d02af876d24be5928d9b8fa2525672d1aa24be32724446a2d20fe8c98c0d",
       "disk_interface": "virtio-scsi",
       "disk_size": "{{ user `disk_size` }}",
       "format": "qcow2",
@@ -66,6 +65,36 @@
           "{{ user `memory` }}"
         ]
       ]
+    },
+    {
+      "boot_wait": "60s",
+      "boot_command": [
+        "echo http://{{ .HTTPIP }}:{{ .HTTPPort}} > .packer_http<enter>",
+        "mkdir -m 0700 .ssh<enter>",
+        "curl $(cat .packer_http)/install_rsa.pub > .ssh/authorized_keys<enter>",
+        "sudo su --<enter>",
+        "nix-env -iA nixos.linuxPackages.hyperv-daemons<enter><wait10>",
+        "$(find /nix/store -executable -iname 'hv_kvp_daemon' | head -n 1)<enter><wait10>",
+        "systemctl start sshd<enter>"
+      ],
+      "http_directory": "scripts",
+      "iso_checksum_type": "sha256",
+      "shutdown_command": "sudo shutdown -h now",
+      "ssh_private_key_file": "./scripts/install_rsa",
+      "ssh_port": 22,
+      "ssh_username": "nixos",
+      "headless": true,
+      "type": "hyperv-iso",
+      "generation": 1,
+      "iso_url": "https://channels.nixos.org/nixos-20.03/latest-nixos-minimal-x86_64-linux.iso",
+      "iso_checksum": "a3e9d02af876d24be5928d9b8fa2525672d1aa24be32724446a2d20fe8c98c0d",
+      "memory": "{{ user `memory` }}",
+      "disk_size": "{{ user `disk_size` }}",
+      "enable_secure_boot": false,
+      "switch_name": "Default Switch",
+      "differencing_disk": true,
+      "communicator": "ssh",
+      "ssh_timeout": "1h"
     },
     {
       "boot_wait": "45s",
@@ -83,8 +112,8 @@
       "ssh_username": "nixos",
       "headless": true,
       "type": "vmware-iso",
-      "iso_url": "https://releases.nixos.org/nixos/19.09/nixos-19.09.741.dbad7c7d59f/nixos-minimal-19.09.2345.6d445f8398d-x86_64-linux.iso",
-      "iso_checksum": "315180e2244bde2435f84755a1e72811000fa23792d4fa3a15a697376f6f16bd",
+      "iso_url": "https://channels.nixos.org/nixos-20.03/latest-nixos-minimal-x86_64-linux.iso",
+      "iso_checksum": "a3e9d02af876d24be5928d9b8fa2525672d1aa24be32724446a2d20fe8c98c0d",
       "memory": "{{ user `memory` }}",
       "disk_size": "{{ user `disk_size` }}",
       "guest_os_type": "Linux"
@@ -104,9 +133,10 @@
         "keep_input_artifact": false,
         "only": [
           "virtualbox-iso",
-          "qemu"
+          "qemu",
+          "hyperv-iso"
         ],
-        "output": "nixos-19.09-{{.Provider}}-x86_64.box"
+        "output": "nixos-20.03-{{.Provider}}-x86_64.box"
       }
     ]
   ]
