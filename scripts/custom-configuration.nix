@@ -66,11 +66,10 @@
     autoconf
     automake
     boost
-    bundler
-    certbot
     consul
     dnsmasq
     docker
+    firefox-bin
     fontforge
     gcc
     gitAndTools.git-crypt

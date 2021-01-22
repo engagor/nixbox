@@ -20,7 +20,7 @@
       "headless": true,
       "type": "virtualbox-iso",
       "iso_url": "https://channels.nixos.org/nixos-20.03/latest-nixos-minimal-i686-linux.iso",
-      "iso_checksum": "sha256:8d3002bd3639fb22da02c40a5bf00f1c9e5a167b8a4828e9e4aaa0d6c140558a",
+      "iso_checksum": "8d3002bd3639fb22da02c40a5bf00f1c9e5a167b8a4828e9e4aaa0d6c140558a",
       "guest_additions_mode": "disable",
       "format": "ova",
       "guest_os_type": "Linux",
