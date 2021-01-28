@@ -70,6 +70,7 @@
       Defaults lecture = never
       root   ALL=(ALL) SETENV: ALL
       %wheel ALL=(ALL) NOPASSWD: ALL, SETENV: ALL
-    '';
+    ''
+  ;
 
 }
